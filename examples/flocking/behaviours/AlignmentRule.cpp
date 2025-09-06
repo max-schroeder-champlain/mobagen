@@ -9,14 +9,10 @@ Vector2f AlignmentRule::computeForce(const std::vector<Boid*>& neighborhood, Boi
   // hint: iterate over the neighborhood
   float radius = boid->getDetectionRadius();
   for (auto i : neighborhood) {
-    Boid currentBoid = *i;
-    Vector2f distance = currentBoid.getPosition() - boid->getPosition();
-    float mag = distance.getMagnitude();
-    if (mag <= radius) {
-      averageVelocity += currentBoid.getVelocity();
-      count++;
-    }
-
+    Boid *currentBoid = i;
+    averageVelocity += currentBoid->getVelocity();
+    count++;
+    currentBoid = nullptr;
   }
   if (count == 0) {
      return {0,0};

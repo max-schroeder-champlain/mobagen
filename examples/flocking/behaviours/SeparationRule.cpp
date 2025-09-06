@@ -16,9 +16,23 @@ Vector2f SeparationRule::computeForce(const std::vector<Boid*>& neighborhood, Bo
   //        // todo: find and apply force only on the closest mates
   //    }
 
+  if (!neighborhood.empty()) {
+    Vector2f pos = boid->getPosition();
+    for (auto i : neighborhood) {
+      if (i != boid) {
+        Vector2f distance = i->getPosition() - pos;
+        float mag = distance.getMagnitude();
+        Vector2f hat = distance/mag;
+        if (mag <= desiredMinimalDistance) {
+          separatingForce += (hat * weight)/(mag*desiredMinimalDistance);
+        }
+      }
+    }
+  }
+
   separatingForce = Vector2f::normalized(separatingForce);
 
-  return separatingForce;
+  return separatingForce * -1;
 }
 
 bool SeparationRule::drawImguiRuleExtra() {

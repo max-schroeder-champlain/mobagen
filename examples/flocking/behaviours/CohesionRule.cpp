@@ -9,14 +9,12 @@ Vector2f CohesionRule::computeForce(const std::vector<Boid*>& neighborhood, Boid
   // todo: add your code here to make a force towards the center of mass
   for (auto i : neighborhood) {
     if (i != boid) {
-      Boid currentBoid = *i;
-      Vector2f distance = currentBoid.getPosition() - boid->getPosition();
-      float mag = distance.getMagnitude();
-      if (mag <= radius) {
-        centerMass += currentBoid.getPosition();
-        count++;
-      }
+      Boid *currentBoid = i;
+      centerMass += currentBoid->getPosition();
+      count++;
+      currentBoid = nullptr;
     }
+
   }
   if (count<=0) {
     return {0,0};
