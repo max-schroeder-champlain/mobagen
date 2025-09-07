@@ -5,21 +5,13 @@ Vector2f AlignmentRule::computeForce(const std::vector<Boid*>& neighborhood, Boi
   // Try to match the heading of neighbors = Average velocity
   Vector2f averageVelocity = Vector2f::zero();
   float count = 0;
-  // todo: add your code here to align each boid in a neighborhood
-  // hint: iterate over the neighborhood
   float radius = boid->getDetectionRadius();
   for (auto i : neighborhood) {
-    Boid *currentBoid = i;
-    averageVelocity += currentBoid->getVelocity();
+    //get velocity of all neighbors
+    averageVelocity += i->getVelocity();
     count++;
-    currentBoid = nullptr;
   }
-  if (count == 0) {
-     return {0,0};
-  }
-  averageVelocity /= count;
-  averageVelocity *= weight;
-  //weighted average?
-  //clamp to radius?
-  return Vector2f::normalized(averageVelocity);
+  averageVelocity /= count; //get average
+  return averageVelocity* weight; // multiply by weight
+  //normalizing causes boids to jitter?
 }

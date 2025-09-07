@@ -8,20 +8,20 @@ Vector2f CohesionRule::computeForce(const std::vector<Boid*>& neighborhood, Boid
   float radius = boid->getDetectionRadius();
   // todo: add your code here to make a force towards the center of mass
   for (auto i : neighborhood) {
+    // ensure current boid isn't counted
     if (i != boid) {
-      Boid *currentBoid = i;
-      centerMass += currentBoid->getPosition();
+      //add boid position to center mass and increment count
+      centerMass += i->getPosition();
       count++;
-      currentBoid = nullptr;
     }
-
   }
+  //If three is no one nearby
   if (count<=0) {
     return {0,0};
   }
-  cohesionForce = centerMass/count;
-  cohesionForce -= boid->getPosition();
-  cohesionForce *= weight;
 
-  return cohesionForce;
+  cohesionForce = centerMass/count; //average
+  cohesionForce -= boid->getPosition(); //get distance
+  cohesionForce = cohesionForce.normalized(); //normalize
+  return cohesionForce * weight; // return force times the weight
 }
