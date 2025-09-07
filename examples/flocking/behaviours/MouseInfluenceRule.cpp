@@ -7,6 +7,7 @@ Vector2f MouseInfluenceRule::computeForce(const std::vector<Boid*>& neighborhood
   ImGui::SetCurrentContext(world->engine->window->imGuiContext);
   ImGuiIO& io = ImGui::GetIO();
   Vector2f vectorForce = {0,0};
+  const float additionalForce = 25;
   //check if mouse 1 is pressed
   if (ImGui::IsMousePosValid() && io.MouseDown[0]) {
     //get mouse position
@@ -19,13 +20,14 @@ Vector2f MouseInfluenceRule::computeForce(const std::vector<Boid*>& neighborhood
       //get hat
       Vector2f hat = distance/mag;
       if (isRepulsive) {
-        //repulse like seperation
-        vectorForce = (weight*hat)/(mag);
-        vectorForce *= -1.f;
+        //multiply hat by the additional force
+        vectorForce = (additionalForce*hat);
+        //multiple again but negative to inverse
+        vectorForce *= -additionalForce;
       }
       else {
         // pull together like cohesion
-        vectorForce = distance * weight;
+        vectorForce = distance * additionalForce;
       }
     }
   }

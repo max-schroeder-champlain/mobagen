@@ -5,11 +5,10 @@
 #include "engine/Engine.h"
 
 Vector2f WindRule::computeForce(const std::vector<Boid*>& neighborhood, Boid* boid) {
-  // todo: add a wind force here
   // hint: use the windAngle variable
+  //WINDANGLE IS A RADIAN
   Vector2f windForce = Vector2f::zero();
-  float radian = (windAngle * M_PI)/180.0f;
-  windForce = {cos(radian),sin(radian)};
+  windForce = {cos(windAngle),sin(windAngle)};
   return windForce * weight;
 }
 
