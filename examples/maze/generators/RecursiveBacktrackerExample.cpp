@@ -2,31 +2,6 @@
 #include "Random.h"
 #include "RecursiveBacktrackerExample.h"
 #include <climits>
-enum class Direction {
-  NORTH,
-  SOUTH,
-  EAST,
-  WEST
-};
-
-struct Maze {
-  size_t rows, columns;
-  std::vector<bool> horizontal;
-  std::vector<bool> vertical;
-
-  bool getWall(size_t x, size_t y, Direction dir) {
-    switch (dir) {
-      case Direction::NORTH:
-        return (horizontal[y*columns+x]);
-      case Direction::SOUTH:
-        return (horizontal[(y+1)*columns+x]);
-      case Direction::WEST:
-        return (vertical[y*columns+x]);
-      case Direction::EAST:
-        return (vertical[y*columns+(x+1)]);
-    }
-  }
-};
 
 bool RecursiveBacktrackerExample::Step(World* w) {
   Point2D neighbor, currentPoint;
