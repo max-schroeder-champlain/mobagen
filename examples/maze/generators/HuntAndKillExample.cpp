@@ -46,7 +46,7 @@ bool HuntAndKillExample::Step(World* w) {
     std::vector<Point2D> visitables = getVisitables(w, stack.back());
     if (visitables.empty()) {
       w->SetNodeColor(stack.back(), Color::Black);
-      finished[stack.back().x][stack.back().y] = true;
+      //finished[stack.back().x][stack.back().y] = true;
       stack.pop_back();
       return true;
     }
