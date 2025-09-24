@@ -4,8 +4,7 @@
 #include <climits>
 
 bool RecursiveBacktrackerExample::Step(World* w) {
-  Point2D neighbor, currentPoint;
-  //currentPoint = Point2D(stack.back().x, stack.back().y);
+  Point2D neighbor;
 
   if (stack.empty()) {
     stack.push_back(randomStartPoint(w));
@@ -29,19 +28,15 @@ bool RecursiveBacktrackerExample::Step(World* w) {
     }
     if (neighbor == stack.back().Up()) {
       w->SetNorth(stack.back(), false);
-      w->SetSouth(stack.back().Up(), false);
     }
     else if (neighbor == stack.back().Down()) {
       w->SetSouth(stack.back(), false);
-      w->SetNorth(stack.back().Down(), false);
     }
     else if (neighbor == stack.back().Left()) {
       w->SetWest(stack.back(), false);
-      w->GetEast(stack.back().Left());
     }
     else if (neighbor == stack.back().Right()) {
       w->SetEast(stack.back(), false);
-      w->SetWest(stack.back().Right(), false);
     }
     stack.push_back(neighbor);
     return true;
