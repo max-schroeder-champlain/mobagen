@@ -5,23 +5,24 @@
 bool HuntAndKillExample::Step(World* w) {
   if (stack.empty()) {
     stack.push_back(randomStartPoint(w));
+    if (stack.back().x == INT_MAX && stack.back().y == INT_MAX)
+      return false;
     w->SetNodeColor(stack.back(), Color::Blue);
     if (getVisitables(w, stack.back()).empty()) {
       w->SetNodeColor(stack.back(), Color::Black);
+      finished[stack.back().x][stack.back().y] = true;
       stack.pop_back();
       return true;
     }
     visited[stack.back().x][stack.back().y] = true;
-    std::vector<Point2D> visitables = getVisitedNeighbors(w, stack.back());
-    if (visitables.size() == 0)
-      visitables = getVisitables(w, stack.back());
+    std::vector<Point2D> visitables = getNeighbors(w, stack.back());
     Point2D neighbor;
     if (visitables.size() != 1) {
       Random random;
       int num = random.Range(0, visitables.size()-1);
       neighbor = visitables[num];
     }
-    else if (visitables.size() == 1) {
+    else{
       neighbor = visitables.front();
     }
     if (neighbor == stack.back().Up()) {
@@ -46,7 +47,7 @@ bool HuntAndKillExample::Step(World* w) {
     std::vector<Point2D> visitables = getVisitables(w, stack.back());
     if (visitables.empty()) {
       w->SetNodeColor(stack.back(), Color::Black);
-      //finished[stack.back().x][stack.back().y] = true;
+      finished[stack.back().x][stack.back().y] = true;
       stack.pop_back();
       return true;
     }
@@ -72,11 +73,11 @@ bool HuntAndKillExample::Step(World* w) {
     stack.push_back(neighbor);
     return true;
   }
-  return false;
 }
 void HuntAndKillExample::Clear(World* world) {
   visited.clear();
   stack.clear();
+  finished.clear();
   auto sideOver2 = world->GetSize() / 2;
 
   for (int i = -sideOver2; i <= sideOver2; i++) {
@@ -91,7 +92,7 @@ Point2D HuntAndKillExample::randomStartPoint(World* world) {
 
   for (int y = -sideOver2; y <= sideOver2; y++)
     for (int x = -sideOver2; x <= sideOver2; x++)
-      if (!visited[x][y]) return {x, y};
+      if (!finished[x][y]) return {x, y};
   return {INT_MAX, INT_MAX};
 }
 
