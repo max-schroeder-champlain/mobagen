@@ -10,7 +10,10 @@ public:
   explicit Agent() = default;
 
   virtual Point2D Move(World*) = 0;
-
+  //Returns float cost
+  float ManhatatanDistance(Point2D a, Point2D b);
+  int Heuristic(Point2D& p, int sideSizeOver2);
+  std:: vector<Point2D> getVisitableNeighbors(World* w, Point2D p);
   std::vector<Point2D> generatePath(World* w);
 };
 
