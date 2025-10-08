@@ -15,6 +15,7 @@ public:
   float ManhatatanDistance(Point2D a, Point2D b);
   int Heuristic(Point2D& p, int sideSizeOver2);
   std:: vector<Point2D> getVisitableNeighbors(World* w, Point2D p, std::unordered_map<Point2D, bool>& visited, std::unordered_set<Point2D> frontierSet);
+  std::vector<Point2D> catValidNeighbors(World* w);
   std::vector<Point2D> generatePath(World* w);
   std::vector<Point2D> getBorderPoints(World * w, Point2D p);
 };

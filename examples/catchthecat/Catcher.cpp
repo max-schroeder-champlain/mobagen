@@ -2,10 +2,19 @@
 #include "World.h"
 
 Point2D Catcher::Move(World* world) {
-  auto side = world->getWorldSideSize() / 2;
-  for (;;) {
-    Point2D p = {Random::Range(-side, side), Random::Range(-side, side)};
-    auto cat = world->getCat();
-    if (cat.x != p.x && cat.y != p.y && !world->getContent(p)) return p;
+
+  std::vector<Point2D> path = generatePath(world);
+  if (path.size() > 0) {
+    return path.front();
+    /*if (world->catCanMoveToPosition(path.front())) return path.front();
+    std::vector<Point2D> nearbyWinPoints = getBorderPoints(world, path.front());
+    if (nearbyWinPoints.size()>0) {
+      int i = Random::Range(0, nearbyWinPoints.size());
+      return nearbyWinPoints[i];
+    }*/
+
   }
+  std::vector<Point2D> catVistiblePoints = catValidNeighbors(world);
+  int i = Random::Range(0, catVistiblePoints.size());
+  return catVistiblePoints[i];
 }

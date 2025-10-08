@@ -19,18 +19,9 @@ vector<Point2D> Agent::generatePath(World* w) {
   frontier.push(catPos);
   frontierSet.insert(catPos);
   costSoFar[catPos] = 0;
-
   Point2D borderExit = Point2D::INFINITE;  // if at the end of the loop we dont find a border, we have to return random points
 //find closest border
   while (!frontier.empty()) {
-    // get the current from frontier
-    // remove the current from frontierset
-    // mark current as visited
-    // getVisitableNeightbors(world, current) returns a vector of neighbors that are not visited, not cat, not block, not in the queue
-    // iterate over the neighs:
-    // for every neighbor set the cameFrom
-    // enqueue the neighbors to frontier and frontierset
-    // do this up to find a visitable border and break the loop
     Point2D current = frontier.front();
     frontier.pop();
     frontierSet.erase(current);
@@ -52,7 +43,10 @@ vector<Point2D> Agent::generatePath(World* w) {
       {
         path.push_back(cameFrom.at(path.back()));
       }
-      if (path.back() == catPos) return path;
+      if (path.back() == catPos) {
+        path.pop_back();
+        return path;
+      }
     }
 
   }
@@ -76,18 +70,15 @@ std::vector<Point2D> Agent::getVisitableNeighbors(World* w, Point2D p, std::unor
     for (int y = -1; y <= 1; y++) {
       if (x == 0 && y == 0)
         continue;
-      //if even add one to x
-      //if y != 0 then if tempx = 0  or tempy = 1 keep going else skip
       Point2D temp = Point2D(p.x+x, p.y+y);
       int tempX = x;
       int tempY = y;
       if (p.y % 2 == 0) {
         tempX++;
       }
-      if (!w->catCanMoveToPosition(temp))  continue;
+      if (!w->catcherCanMoveToPosition(temp))  continue;
+      if (w->getContent(temp)) continue;
       if (visited[temp]) continue;
-
-
       if (y != 0) {
         if (tempX == 0 || tempX == 1) {}
         else continue;
@@ -114,14 +105,38 @@ std:: vector<Point2D> Agent::getBorderPoints(World* w, Point2D p) {
       if (p.y % 2 == 0) {
         tempX++;
       }
-      if (!w->catCanMoveToPosition(temp))
-        continue;
       if (y != 0) {
         if (tempX == 0 || tempX == 1) {}
         else
           continue;
       }
-      if (w->catWinsOnSpace(temp))
+      if (w->catWinsOnSpace(temp) && !w->getContent(temp))
+        neighbors.push_back(temp);
+    }
+  }
+  return neighbors;
+}
+vector<Point2D> Agent::catValidNeighbors(World* w) {
+  auto catPos = w->getCat();
+  vector<Point2D> neighbors;
+  for (int x = -1; x<= 1; x++) {
+    for (int y = -1; y <= 1; y++) {
+      if (x == 0 && y == 0)
+        continue;
+      //if even add one to x
+      //if y != 0 then if tempx = 0  or tempy = 1 keep going else skip
+      Point2D temp = Point2D(catPos.x+x, catPos.y+y);
+      int tempX = x;
+      int tempY = y;
+      if (catPos.y % 2 == 0) {
+        tempX++;
+      }
+      if (y != 0) {
+        if (tempX == 0 || tempX == 1) {}
+        else
+          continue;
+      }
+      if (w->catCanMoveToPosition(temp) && !w->getContent(temp))
         neighbors.push_back(temp);
     }
   }
