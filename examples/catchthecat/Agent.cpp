@@ -3,7 +3,6 @@
 #include <unordered_map>
 #include <queue>
 #include "World.h"
-#include "../../cmake-build-debug/_deps/glm-src/glm/detail/type_vec3.hpp"
 using namespace std;
 
 vector<Point2D> Agent::generatePath(World* w) {
@@ -14,6 +13,7 @@ vector<Point2D> Agent::generatePath(World* w) {
   vector<Point2D> path;
   unordered_map<Point2D, int> costSoFar;
   int sideOver2 = w->getWorldSideSize() / 2.0f;
+
   // bootstrap state
   auto catPos = w->getCat();
   Point2DPrioritized prioritizedCatPos = Point2DPrioritized(catPos, Heuristic(catPos, sideOver2));
@@ -21,18 +21,25 @@ vector<Point2D> Agent::generatePath(World* w) {
   frontierSet.insert(catPos);
   costSoFar[catPos] = 0;
   Point2D borderExit = Point2D::INFINITE;
-  int lastBestCost = prioritizedCatPos.priority;
+
+  int lastBestCost = 0;
+
   while (!frontier.empty()) {
+
     Point2D current = frontier.top().position;
     frontier.pop();
     frontierSet.erase(current);
     visited[current] = true;
+
     vector<Point2D> neighbors = getVisitableNeighbors(w, current, visited, frontierSet);
     for (int i = 0; i < neighbors.size(); i++) {
-      cameFrom.insert({neighbors[i], current});
-      frontier.push(Point2DPrioritized(neighbors[i], Heuristic(neighbors[i], sideOver2)));
-      frontierSet.insert(neighbors[i]);
-      costSoFar[neighbors[i]] = costSoFar[current] + Heuristic(neighbors[i], sideOver2);
+      int newCost = costSoFar[current] + 1;
+      if (costSoFar[neighbors[i]] == NULL || newCost < costSoFar[neighbors[i]]) {
+        frontier.push(Point2DPrioritized(neighbors[i], Heuristic(neighbors[i], sideOver2) + newCost));
+        frontierSet.insert(neighbors[i]);
+        costSoFar[neighbors[i]] = costSoFar[current] + Heuristic(neighbors[i], sideOver2);
+        cameFrom.insert({neighbors[i], current});
+      }
       if (w->catWinsOnSpace(neighbors[i])) {
         if (borderExit == Point2D::INFINITE) {
           borderExit = neighbors[i];
@@ -45,6 +52,7 @@ vector<Point2D> Agent::generatePath(World* w) {
         }
       }
     }
+
     if (path.size() > 0) {
       while (path.back() != catPos){
         path.push_back(cameFrom.at(path.back()));
@@ -81,7 +89,7 @@ std::vector<Point2D> Agent::getVisitableNeighbors(World* w, Point2D p, std::unor
       }
       if (!w->catcherCanMoveToPosition(temp))  continue;
       if (w->getContent(temp)) continue;
-      if (visited[temp]) continue;
+      //if (visited[temp]) continue;
       if (y != 0) {
         if (tempX == 0 || tempX == 1) {}
         else continue;
