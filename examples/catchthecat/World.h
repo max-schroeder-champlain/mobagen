@@ -12,7 +12,7 @@
 
 class World : GameObject {
 private:
-  float timeBetweenAITicks = 1;
+  float timeBetweenAITicks = 0.1f;
   float timeForNextTick = 1;
   bool catTurn = true;
   bool isSimulating = false;

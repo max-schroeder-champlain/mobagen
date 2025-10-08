@@ -40,4 +40,23 @@ namespace std {
   };
 }  // namespace std
 
+struct Point2DPrioritized {
+  Point2D position;
+  int priority;
+  Point2DPrioritized(Point2D point, int priority): position(point), priority(priority){}
+  bool operator<(const Point2DPrioritized& other) const {
+    return priority > other.priority;
+  }
+  bool operator==(const Point2DPrioritized& other) const {
+    return priority == other.priority;
+  }
+};
+
+template<>
+struct std::hash<Point2DPrioritized> {
+  size_t operator()(const Point2DPrioritized &p) const {
+    return  hash<int>()(p.position.x) ^ (hash<int>()(p.position.y) << 1);
+  }
+};
+
 #endif  // POINT2D_H

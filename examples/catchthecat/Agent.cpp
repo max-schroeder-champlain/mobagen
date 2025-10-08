@@ -8,39 +8,45 @@ using namespace std;
 
 vector<Point2D> Agent::generatePath(World* w) {
   unordered_map<Point2D, Point2D> cameFrom;  // to build the flowfield and build the path
-  queue<Point2D> frontier;                   // to store next ones to visit
+  priority_queue<Point2DPrioritized> frontier;                   // to store next ones to visit
   unordered_set<Point2D> frontierSet;        // OPTIMIZATION to check faster if a point is in the queue
   unordered_map<Point2D, bool> visited;      // use .at() to get data, if the element dont exist [] will give you wrong results
   vector<Point2D> path;
   unordered_map<Point2D, int> costSoFar;
+  int sideOver2 = w->getWorldSideSize() / 2.0f;
   // bootstrap state
-  //optimal route to get cat out. For cat return direction to move, for hunter return where they should place
   auto catPos = w->getCat();
-  frontier.push(catPos);
+  Point2DPrioritized prioritizedCatPos = Point2DPrioritized(catPos, Heuristic(catPos, sideOver2));
+  frontier.push(prioritizedCatPos);
   frontierSet.insert(catPos);
   costSoFar[catPos] = 0;
-  Point2D borderExit = Point2D::INFINITE;  // if at the end of the loop we dont find a border, we have to return random points
-//find closest border
+  Point2D borderExit = Point2D::INFINITE;
+  int lastBestCost = prioritizedCatPos.priority;
   while (!frontier.empty()) {
-    Point2D current = frontier.front();
+    Point2D current = frontier.top().position;
     frontier.pop();
     frontierSet.erase(current);
     visited[current] = true;
     vector<Point2D> neighbors = getVisitableNeighbors(w, current, visited, frontierSet);
     for (int i = 0; i < neighbors.size(); i++) {
       cameFrom.insert({neighbors[i], current});
-      frontier.push(neighbors[i]);
+      frontier.push(Point2DPrioritized(neighbors[i], Heuristic(neighbors[i], sideOver2)));
       frontierSet.insert(neighbors[i]);
-      costSoFar[neighbors[i]] = costSoFar[current] + 1;
+      costSoFar[neighbors[i]] = costSoFar[current] + Heuristic(neighbors[i], sideOver2);
       if (w->catWinsOnSpace(neighbors[i])) {
-        borderExit = neighbors[i];
-        path.push_back(borderExit);
-        break;
+        if (borderExit == Point2D::INFINITE) {
+          borderExit = neighbors[i];
+          path.push_back(borderExit);
+        }
+        else if (ManhatatanDistance(catPos, borderExit) > ManhatatanDistance(catPos, neighbors[i])) {
+          path.pop_back();
+          borderExit = neighbors[i];
+          path.push_back(borderExit);
+        }
       }
     }
     if (path.size() > 0) {
-      while (path.back() != catPos)
-      {
+      while (path.back() != catPos){
         path.push_back(cameFrom.at(path.back()));
       }
       if (path.back() == catPos) {
@@ -50,9 +56,6 @@ vector<Point2D> Agent::generatePath(World* w) {
     }
 
   }
-  // if the border is not infinity, build the path from border to the cat using the camefrom map
-  // if there isnt a reachable border, just return empty vector
-  // if your vector is filled from the border to the cat, the first element is the catcher move, and the last element is the cat move
   return vector<Point2D>();
 }
 
@@ -61,7 +64,7 @@ float Agent::ManhatatanDistance(Point2D a, Point2D b){
 }
 int Agent::Heuristic(Point2D& p, int sideSizeOver2) {
   int x = abs(p.x), y = abs(p.y);
-  return std::min(sideSizeOver2 - x, sideSizeOver2 - y);
+  return sideSizeOver2 - max(x,y);
 }
 
 std::vector<Point2D> Agent::getVisitableNeighbors(World* w, Point2D p, std::unordered_map<Point2D, bool>& visited, std::unordered_set<Point2D> frontierSet) {
@@ -123,8 +126,6 @@ vector<Point2D> Agent::catValidNeighbors(World* w) {
     for (int y = -1; y <= 1; y++) {
       if (x == 0 && y == 0)
         continue;
-      //if even add one to x
-      //if y != 0 then if tempx = 0  or tempy = 1 keep going else skip
       Point2D temp = Point2D(catPos.x+x, catPos.y+y);
       int tempX = x;
       int tempY = y;
