@@ -19,10 +19,8 @@ vector<Point2D> Agent::generatePath(World* w) {
   Point2DPrioritized prioritizedCatPos = Point2DPrioritized(catPos, Heuristic(catPos, sideOver2));
   frontier.push(prioritizedCatPos);
   frontierSet.insert(catPos);
-  costSoFar[catPos] = 0;
+  costSoFar[catPos] = prioritizedCatPos.priority;
   Point2D borderExit = Point2D::INFINITE;
-
-  int lastBestCost = 0;
 
   while (!frontier.empty()) {
 
